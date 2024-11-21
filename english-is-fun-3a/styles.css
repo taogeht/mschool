@@ -389,3 +389,25 @@ button:disabled {
 .single-player {
     margin-bottom: 20px;
 }
+
+.play-pause-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: unset;
+}
+
+.play-pause-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: white;
+}
+
+/* Adjust the play icon position slightly */
+.play-pause-btn.play svg {
+    margin-left: 2px;
+}

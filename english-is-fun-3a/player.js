@@ -26,8 +26,8 @@ const tracks = [
     { id: 'track12', title: 'Track 12', file: '../audio/eif3a/Track12.mp3' },
     { id: 'track13', title: 'Track 13', file: '../audio/eif3a/Track13.mp3' },
     { id: 'track14', title: 'Track 14', file: '../audio/eif3a/Track14.mp3' },
-    { id: 'track15', title: 'Track 13', file: '../audio/eif3a/Track15.mp3' },
-    { id: 'track16', title: 'Track 14', file: '../audio/eif3a/Track16.mp3' }
+    { id: 'track15', title: 'Track 15', file: '../audio/eif3a/Track15.mp3' },
+    { id: 'track16', title: 'Track 16', file: '../audio/eif3a/Track16.mp3' }
     
 ];
 
@@ -41,10 +41,13 @@ class AudioPlayer {
         this.isPlaying = false;
         this.isSinglePlayer = isSinglePlayer;
         this.createPlayer();
-        this.setupEventListeners();
+      
     }
 
     createPlayer() {
+        const playIcon = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+        const pauseIcon = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+    
         this.container.innerHTML = `
             <div class="track-container ${this.isSinglePlayer ? 'single-player' : ''}">
                 <div class="track-header">
@@ -59,29 +62,43 @@ class AudioPlayer {
                 </div>
                 <div class="controls">
                     <div class="primary-controls">
-                        <button class="play-pause">Play</button>
+                        <button class="play-pause-btn play" aria-label="Play">
+                            ${playIcon}
+                        </button>
                         <input type="range" class="volume-control" min="0" max="1" step="0.1" value="1">
                         <span class="time-display">0:00 / 0:00</span>
                     </div>
                 </div>
             </div>
         `;
-
-        this.playPauseBtn = this.container.querySelector('.play-pause');
+    
+        this.playPauseBtn = this.container.querySelector('.play-pause-btn');
         this.progressBar = this.container.querySelector('.progress-bar');
         this.progressContainer = this.container.querySelector('.progress-container');
         this.volumeControl = this.container.querySelector('.volume-control');
         this.timeDisplay = this.container.querySelector('.time-display');
     }
-
-    setupEventListeners() {
-        this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
-        this.progressContainer.addEventListener('click', (e) => this.seek(e));
-        this.volumeControl.addEventListener('input', (e) => this.setVolume(e));
-        
-        this.audio.addEventListener('timeupdate', () => this.updateProgress());
-        this.audio.addEventListener('ended', () => this.onTrackEnd());
-        this.audio.addEventListener('loadedmetadata', () => this.updateTimeDisplay());
+    
+    play() {
+        this.audio.play();
+        this.playPauseBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+        this.playPauseBtn.classList.remove('play');
+        this.playPauseBtn.classList.add('pause');
+        this.playPauseBtn.setAttribute('aria-label', 'Pause');
+        this.isPlaying = true;
+        currentlyPlaying = this;
+    }
+    
+    pause() {
+        this.audio.pause();
+        this.playPauseBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+        this.playPauseBtn.classList.remove('pause');
+        this.playPauseBtn.classList.add('play');
+        this.playPauseBtn.setAttribute('aria-label', 'Play');
+        this.isPlaying = false;
+        if (currentlyPlaying === this) {
+            currentlyPlaying = null;
+        }
     }
 
     togglePlayPause() {
@@ -92,22 +109,6 @@ class AudioPlayer {
                 currentlyPlaying.pause();
             }
             this.play();
-        }
-    }
-
-    play() {
-        this.audio.play();
-        this.playPauseBtn.textContent = 'Pause';
-        this.isPlaying = true;
-        currentlyPlaying = this;
-    }
-
-    pause() {
-        this.audio.pause();
-        this.playPauseBtn.textContent = 'Play';
-        this.isPlaying = false;
-        if (currentlyPlaying === this) {
-            currentlyPlaying = null;
         }
     }
 
