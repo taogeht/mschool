@@ -12,11 +12,11 @@ class FlashcardManager {
             'track1': [
                 '../img/flashcards/eif3a/track1/card1.jpg',
                 '../img/flashcards/eif3a/track1/card2.jpg',
-                'img/flashcards/eif3a/track1/card3.jpg',
-                'img/flashcards/eif3a/track1/card4.jpg',
-                'img/flashcards/eif3a/track1/card5.jpg',
-                'img/flashcards/eif3a/track1/card6.jpg',
-                'img/flashcards/eif3a/track1/card7.jpg'
+                '../img/flashcards/eif3a/track1/card3.jpg',
+                '../img/flashcards/eif3a/track1/card4.jpg',
+                '../img/flashcards/eif3a/track1/card5.jpg',
+                '../img/flashcards/eif3a/track1/card6.jpg',
+                '../img/flashcards/eif3a/track1/card7.jpg'
             ],
             'track2': [
                 '/img/flashcards/track2/card1.jpg',
