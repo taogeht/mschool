@@ -10,8 +10,8 @@ class FlashcardManager {
         // Map track IDs to their corresponding flashcard sets
         const flashcardSets = {
             'track1': [
-                'img/flashcards/eif3a/track1/card1.jpg',
-                'img/flashcards/eif3a/track1/card2.jpg',
+                '../img/flashcards/eif3a/track1/card1.jpg',
+                '../img/flashcards/eif3a/track1/card2.jpg',
                 'img/flashcards/eif3a/track1/card3.jpg',
                 'img/flashcards/eif3a/track1/card4.jpg',
                 'img/flashcards/eif3a/track1/card5.jpg',
