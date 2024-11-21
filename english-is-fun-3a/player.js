@@ -12,20 +12,22 @@ function toggleTheme() {
 }
 
 const tracks = [
-    { id: 'track1', title: 'Track 1', file: '/audio/eif3a/Track1.mp3' },
-    { id: 'track2', title: 'Track 2', file: '/audio/eif3a/Track2.mp3' },
-    { id: 'track3', title: 'Track 3', file: '/audio/eif3a/Track3.mp3' },
-    { id: 'track4', title: 'Track 4', file: '/audio/eif3a/Track4.mp3' },
-    { id: 'track5', title: 'Track 5', file: '/audio/eif3a/Track5.mp3' },
-    { id: 'track6', title: 'Track 6', file: '/audio/eif3a/Track6.mp3' },
-    { id: 'track7', title: 'Track 7', file: '/audio/eif3a/Track7.mp3' },
-    { id: 'track8', title: 'Track 8', file: '/audio/eif3a/Track8.mp3' },
-    { id: 'track9', title: 'Track 9', file: '/audio/eif3a/Track9.mp3' },
-    { id: 'track10', title: 'Track 10', file: '/audio/eif3a/Track10.mp3' },
-    { id: 'track11', title: 'Track 11', file: '/audio/eif3a/Track11.mp3' },
-    { id: 'track12', title: 'Track 12', file: '/audio/eif3a/Track12.mp3' },
-    { id: 'track13', title: 'Track 13', file: '/audio/eif3a/Track13.mp3' },
-    { id: 'track14', title: 'Track 14', file: '/audio/eif3a/Track14.mp3' },
+    { id: 'track1', title: 'Track 1', file: '../audio/eif3a/Track1.mp3' },
+    { id: 'track2', title: 'Track 2', file: '../audio/eif3a/Track2.mp3' },
+    { id: 'track3', title: 'Track 3', file: '../audio/eif3a/Track3.mp3' },
+    { id: 'track4', title: 'Track 4', file: '../audio/eif3a/Track4.mp3' },
+    { id: 'track5', title: 'Track 5', file: '../audio/eif3a/Track5.mp3' },
+    { id: 'track6', title: 'Track 6', file: '../audio/eif3a/Track6.mp3' },
+    { id: 'track7', title: 'Track 7', file: '../audio/eif3a/Track7.mp3' },
+    { id: 'track8', title: 'Track 8', file: '../audio/eif3a/Track8.mp3' },
+    { id: 'track9', title: 'Track 9', file: '../audio/eif3a/Track9.mp3' },
+    { id: 'track10', title: 'Track 10', file: '../audio/eif3a/Track10.mp3' },
+    { id: 'track11', title: 'Track 11', file: '../audio/eif3a/Track11.mp3' },
+    { id: 'track12', title: 'Track 12', file: '../audio/eif3a/Track12.mp3' },
+    { id: 'track13', title: 'Track 13', file: '../audio/eif3a/Track13.mp3' },
+    { id: 'track14', title: 'Track 14', file: '../audio/eif3a/Track14.mp3' },
+    { id: 'track15', title: 'Track 13', file: '../audio/eif3a/Track15.mp3' },
+    { id: 'track16', title: 'Track 14', file: '../audio/eif3a/Track16.mp3' }
     
 ];
 
