@@ -12,8 +12,8 @@ function toggleTheme() {
 }
 
 const tracks = [
-    { id: 'track1', title: 'Track 1', file: '../audio/eif3a/Track1.mp3' },
-    { id: 'track2', title: 'Track 2', file: '../audio/eif3a/Track2.mp3' },
+    { id: 'track1', title: 'Track 1', file: '/audio/Track1.mp3' },
+    { id: 'track2', title: 'Track 2', file: '/audio/Track2.mp3' },
     { id: 'track3', title: 'Track 3', file: '../audio/eif3a/Track3.mp3' },
     { id: 'track4', title: 'Track 4', file: '../audio/eif3a/Track4.mp3' },
     { id: 'track5', title: 'Track 5', file: '../audio/eif3a/Track5.mp3' },
