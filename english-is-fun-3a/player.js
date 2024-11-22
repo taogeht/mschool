@@ -12,7 +12,7 @@ function toggleTheme() {
 }
 
 const tracks = [
-    { id: 'track1', title: 'Track 1', file: '/audio/Track1.mp3' },
+    { id: 'track1', title: 'Track 1', file: '/mschool/english-is-fun-3a/audio/Track1.mp3' },
     { id: 'track2', title: 'Track 2', file: '/audio/Track2.mp3' },
     { id: 'track3', title: 'Track 3', file: '../audio/eif3a/Track3.mp3' },
     { id: 'track4', title: 'Track 4', file: '../audio/eif3a/Track4.mp3' },
@@ -28,10 +28,13 @@ const tracks = [
     { id: 'track14', title: 'Track 14', file: '../audio/eif3a/Track14.mp3' },
     { id: 'track15', title: 'Track 15', file: '../audio/eif3a/Track15.mp3' },
     { id: 'track16', title: 'Track 16', file: '../audio/eif3a/Track16.mp3' }
+   
     
 ];
 
 let currentlyPlaying = null;
+
+
 
 class AudioPlayer {
     constructor(track, container, isSinglePlayer = false) {
@@ -72,14 +75,49 @@ class AudioPlayer {
             </div>
         `;
     
+        // Store element references
         this.playPauseBtn = this.container.querySelector('.play-pause-btn');
         this.progressBar = this.container.querySelector('.progress-bar');
         this.progressContainer = this.container.querySelector('.progress-container');
         this.volumeControl = this.container.querySelector('.volume-control');
         this.timeDisplay = this.container.querySelector('.time-display');
+    
+        // Set up event listeners
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        console.log('Setting up event listeners');
+        console.log('Play button element:', this.playPauseBtn);
+        
+        this.playPauseBtn.addEventListener('click', () => {
+            console.log('Play button clicked');
+            this.togglePlayPause();
+        });
+        this.progressContainer.addEventListener('click', (e) => this.seek(e));
+        this.volumeControl.addEventListener('input', (e) => this.setVolume(e));
+        
+        this.audio.addEventListener('timeupdate', () => this.updateProgress());
+        this.audio.addEventListener('ended', () => this.onTrackEnd());
+        this.audio.addEventListener('loadedmetadata', () => this.updateTimeDisplay());
+    }
+
+    togglePlayPause() {
+        console.log('Toggle play/pause called');
+        console.log('Current playing state:', this.isPlaying);
+        
+        if (this.isPlaying) {
+            this.pause();
+        } else {
+            if (currentlyPlaying && currentlyPlaying !== this) {
+                currentlyPlaying.pause();
+            }
+            this.play();
+        }
     }
     
     play() {
+        console.log('Play called');
         this.audio.play();
         this.playPauseBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
         this.playPauseBtn.classList.remove('play');
@@ -90,6 +128,7 @@ class AudioPlayer {
     }
     
     pause() {
+        console.log('Pause called');
         this.audio.pause();
         this.playPauseBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
         this.playPauseBtn.classList.remove('pause');
@@ -98,17 +137,6 @@ class AudioPlayer {
         this.isPlaying = false;
         if (currentlyPlaying === this) {
             currentlyPlaying = null;
-        }
-    }
-
-    togglePlayPause() {
-        if (this.isPlaying) {
-            this.pause();
-        } else {
-            if (currentlyPlaying && currentlyPlaying !== this) {
-                currentlyPlaying.pause();
-            }
-            this.play();
         }
     }
 
