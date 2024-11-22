@@ -2,8 +2,9 @@ class FlashcardManager {
     constructor(trackId) {
         this.currentIndex = 0;
         this.trackId = trackId;
-        // Each track has its own set of flashcards
         this.cards = this.getCardsForTrack(trackId);
+        this.touchStartX = 0;
+        this.touchEndX = 0;
     }
 
     getCardsForTrack(trackId) {
@@ -50,12 +51,12 @@ class FlashcardManager {
         const mainContent = document.getElementById('mainContent');
         mainContent.innerHTML = this.createFlashcardHTML();
         
-        // Initialize the single audio player for this track
         const singlePlayerContainer = document.getElementById('singlePlayerContainer');
         const track = tracks.find(t => t.id === this.trackId);
-        new AudioPlayer(track, singlePlayerContainer, true); // true indicates single player mode
+        new AudioPlayer(track, singlePlayerContainer, true);
         
         this.setupEventListeners();
+        this.setupTouchListeners();
     }
 
     setupEventListeners() {
@@ -75,6 +76,41 @@ class FlashcardManager {
         });
     }
 
+    setupTouchListeners() {
+        const flashcard = document.querySelector('.flashcard');
+        
+        flashcard.addEventListener('touchstart', (e) => {
+            this.touchStartX = e.touches[0].clientX;
+            flashcard.classList.add('touching');
+        });
+
+        flashcard.addEventListener('touchmove', (e) => {
+            this.touchEndX = e.touches[0].clientX;
+            const diff = this.touchStartX - this.touchEndX;
+            const threshold = 50; // Minimum swipe distance
+            
+            // Calculate transform based on swipe distance
+            const transform = Math.max(-100, Math.min(100, -diff));
+            flashcard.style.transform = `translateX(${-transform}px)`;
+        });
+
+        flashcard.addEventListener('touchend', () => {
+            const diff = this.touchStartX - this.touchEndX;
+            const threshold = 50;
+            
+            if (Math.abs(diff) > threshold) {
+                if (diff > 0) {
+                    this.nextCard();
+                } else {
+                    this.prevCard();
+                }
+            }
+            
+            flashcard.classList.remove('touching');
+            flashcard.style.transform = '';
+        });
+    }
+    
     nextCard() {
         this.currentIndex = (this.currentIndex + 1) % this.cards.length;
         this.updateCard();

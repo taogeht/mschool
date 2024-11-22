@@ -1,3 +1,5 @@
+let globalAudioPlayer = null;
+
 // Theme management
 function initializeTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -36,19 +38,40 @@ let currentlyPlaying = null;
 
 class AudioPlayer {
     constructor(track, container, isSinglePlayer = false) {
+        // Check if there's an existing player for this track
+        if (globalAudioPlayer && globalAudioPlayer.track.id === track.id) {
+            this.audio = globalAudioPlayer.audio;
+            this.isPlaying = globalAudioPlayer.isPlaying;
+        } else {
+            this.audio = new Audio(track.file);
+            this.isPlaying = false;
+        }
+        
         this.track = track;
         this.container = container;
-        this.audio = new Audio(track.file);
-        this.isPlaying = false;
         this.isSinglePlayer = isSinglePlayer;
+        this.isDragging = false;
         this.createPlayer();
-      
+        this.setupEventListeners();
+        
+        // Update UI to match current state
+        if (this.isPlaying) {
+            this.updatePlayPauseButton(true);
+            this.updateProgress();
+        }
     }
 
     createPlayer() {
-        const playIcon = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
-        const pauseIcon = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
-    
+        const playIcon = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+            </svg>`;
+        
+        const pauseIcon = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+            </svg>`;
+
         this.container.innerHTML = `
             <div class="track-container ${this.isSinglePlayer ? 'single-player' : ''}">
                 <div class="track-header">
@@ -63,8 +86,8 @@ class AudioPlayer {
                 </div>
                 <div class="controls">
                     <div class="primary-controls">
-                        <button class="play-pause-btn play" aria-label="Play">
-                            ${playIcon}
+                        <button class="play-pause-btn ${this.isPlaying ? 'pause' : 'play'}" aria-label="${this.isPlaying ? 'Pause' : 'Play'}">
+                            ${this.isPlaying ? pauseIcon : playIcon}
                         </button>
                         <input type="range" class="volume-control" min="0" max="1" step="0.1" value="1">
                         <span class="time-display">0:00 / 0:00</span>
@@ -72,66 +95,103 @@ class AudioPlayer {
                 </div>
             </div>
         `;
-    
-        // Store element references
+
         this.playPauseBtn = this.container.querySelector('.play-pause-btn');
         this.progressBar = this.container.querySelector('.progress-bar');
         this.progressContainer = this.container.querySelector('.progress-container');
         this.volumeControl = this.container.querySelector('.volume-control');
         this.timeDisplay = this.container.querySelector('.time-display');
-    
-        // Set up event listeners
-        this.setupEventListeners();
+    }
+    updatePlayPauseButton(isPlaying) {
+        const playIcon = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+            </svg>`;
+        
+        const pauseIcon = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+            </svg>`;
+
+        this.playPauseBtn.innerHTML = isPlaying ? pauseIcon : playIcon;
+        this.playPauseBtn.classList.toggle('play', !isPlaying);
+        this.playPauseBtn.classList.toggle('pause', isPlaying);
+        this.playPauseBtn.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
+    }
+    handleAudioError() {
+        this.errorMessage.textContent = "Error loading audio file. Please check the file path.";
+        this.errorMessage.style.display = 'block';
+        this.playPauseBtn.disabled = true;
     }
 
     setupEventListeners() {
-        console.log('Setting up event listeners');
-        console.log('Play button element:', this.playPauseBtn);
-        
+        // Ensure audio is loaded before allowing play
+        this.audio.addEventListener('loadeddata', () => {
+            this.playPauseBtn.disabled = false;
+            console.log('Audio loaded successfully:', this.track.file);
+        });
+
         this.playPauseBtn.addEventListener('click', () => {
             console.log('Play button clicked');
             this.togglePlayPause();
         });
-        this.progressContainer.addEventListener('click', (e) => this.seek(e));
+
         this.volumeControl.addEventListener('input', (e) => this.setVolume(e));
         
-        this.audio.addEventListener('timeupdate', () => this.updateProgress());
+        // Progress bar interactions
+        this.progressContainer.addEventListener('mousedown', (e) => this.startDragging(e));
+        document.addEventListener('mousemove', (e) => this.drag(e));
+        document.addEventListener('mouseup', () => this.stopDragging());
+        
+        this.audio.addEventListener('timeupdate', () => {
+            if (!this.isDragging) {
+                this.updateProgress();
+            }
+        });
+        
         this.audio.addEventListener('ended', () => this.onTrackEnd());
         this.audio.addEventListener('loadedmetadata', () => this.updateTimeDisplay());
+
+        // Debug logging
+        this.audio.addEventListener('play', () => console.log('Audio play event fired'));
+        this.audio.addEventListener('playing', () => console.log('Audio playing event fired'));
     }
 
-    togglePlayPause() {
-        console.log('Toggle play/pause called');
-        console.log('Current playing state:', this.isPlaying);
-        
-        if (this.isPlaying) {
-            this.pause();
-        } else {
-            if (currentlyPlaying && currentlyPlaying !== this) {
-                currentlyPlaying.pause();
+    async togglePlayPause() {
+        try {
+            if (this.isPlaying) {
+                await this.pause();
+            } else {
+                if (currentlyPlaying && currentlyPlaying !== this) {
+                    await currentlyPlaying.pause();
+                }
+                await this.play();
             }
-            this.play();
+        } catch (error) {
+            console.error('Error toggling play/pause:', error);
+            this.handleAudioError();
         }
     }
-    
-    play() {
-        console.log('Play called');
-        this.audio.play();
-        this.playPauseBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
-        this.playPauseBtn.classList.remove('play');
-        this.playPauseBtn.classList.add('pause');
-        this.playPauseBtn.setAttribute('aria-label', 'Pause');
-        this.isPlaying = true;
-        currentlyPlaying = this;
+
+    async play() {
+        try {
+            const playPromise = this.audio.play();
+            
+            if (playPromise !== undefined) {
+                await playPromise;
+                this.updatePlayPauseButton(true);
+                this.isPlaying = true;
+                currentlyPlaying = this;
+                globalAudioPlayer = this;
+            }
+        } catch (error) {
+            console.error('Error playing audio:', error);
+        }
     }
-    
+
     pause() {
-        console.log('Pause called');
         this.audio.pause();
-        this.playPauseBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
-        this.playPauseBtn.classList.remove('pause');
-        this.playPauseBtn.classList.add('play');
-        this.playPauseBtn.setAttribute('aria-label', 'Play');
+        this.updatePlayPauseButton(false);
         this.isPlaying = false;
         if (currentlyPlaying === this) {
             currentlyPlaying = null;
@@ -204,6 +264,7 @@ function initializeAudioPlayers() {
     
     tracks.forEach(track => {
         const playerContainer = document.createElement('div');
+        playerContainer.setAttribute('data-track-id', track.id);
         playerGrid.appendChild(playerContainer);
         new AudioPlayer(track, playerContainer);
     });
@@ -230,15 +291,41 @@ function togglePage() {
 
 function showFlashcards(trackId) {
     currentPage = 'flashcards';
+    // Store the currently playing track before switching views
+    const wasPlaying = currentlyPlaying ? currentlyPlaying.track.id : null;
+    
     const flashcardManager = new FlashcardManager(trackId);
     flashcardManager.initialize();
+
+    // If there was a track playing and it matches the current track, ensure it continues
+    if (wasPlaying === trackId) {
+        const audioPlayer = new AudioPlayer(tracks.find(t => t.id === trackId), 
+            document.getElementById('singlePlayerContainer'), true);
+        if (globalAudioPlayer && globalAudioPlayer.isPlaying) {
+            audioPlayer.updatePlayPauseButton(true);
+        }
+    }
 }
 
 function returnToMain() {
     currentPage = 'audio';
+    // Store the currently playing track before switching views
+    const wasPlaying = globalAudioPlayer ? globalAudioPlayer.track.id : null;
+    
     initializeAudioPlayers();
-}
 
+    // If there was a track playing, ensure its UI is updated in the grid view
+    if (wasPlaying) {
+        const playerContainer = document.querySelector(`[data-track-id="${wasPlaying}"]`);
+        if (playerContainer) {
+            const track = tracks.find(t => t.id === wasPlaying);
+            const audioPlayer = new AudioPlayer(track, playerContainer);
+            if (globalAudioPlayer.isPlaying) {
+                audioPlayer.updatePlayPauseButton(true);
+            }
+        }
+    }
+}
 function loadFlashcards() {
     const flashcardContent = document.getElementById('flashcardContent');
     // Add your flashcard initialization code here
