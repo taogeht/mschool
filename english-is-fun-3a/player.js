@@ -28,8 +28,6 @@ const tracks = [
     { id: 'track14', title: 'Track 14', file: '../audio/eif3a/Track14.mp3' },
     { id: 'track15', title: 'Track 15', file: '../audio/eif3a/Track15.mp3' },
     { id: 'track16', title: 'Track 16', file: '../audio/eif3a/Track16.mp3' }
-   
-    
 ];
 
 let currentlyPlaying = null;
